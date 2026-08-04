@@ -1,0 +1,88 @@
+   0.061854336s  INFO prepare_target{force=false package_id=string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string) target="string"}: cargo::core::compiler::fingerprint: fingerprint error for string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("string", ["lib"], "/home/kantnero/open-source/libssh-mirror/src/rust/string/src/lib.rs", Edition2024) }
+   0.061928988s  INFO prepare_target{force=false package_id=string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string) target="string"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/kantnero/open-source/libssh-mirror/src/rust/string/target/debug/.fingerprint/string-af58e18582c937e9/lib-string`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_with_exec
+   7: cargo::ops::cargo_compile::compile
+   8: cargo::commands::check::exec
+   9: <cargo::cli::Exec>::exec
+  10: cargo::main
+  11: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  12: std::rt::lang_start::<()>::{closure#0}
+  13: <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/core/src/ops/function.rs:287:21
+  14: std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:576:43
+  15: std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:544:19
+  16: std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panic.rs:359:14
+  17: std::rt::lang_start_internal::{closure#0}
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/rt.rs:175:24
+  18: std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:576:43
+  19: std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:544:19
+  20: std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panic.rs:359:14
+  21: std::rt::lang_start_internal
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/rt.rs:171:5
+  22: main
+  23: __libc_start_call_main
+  24: __libc_start_main@@GLIBC_2.34
+  25: <unknown>
+   0.155868774s  INFO prepare_target{force=false package_id=string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string) target="string"}: cargo::core::compiler::fingerprint: fingerprint error for string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("string", ["lib"], "/home/kantnero/open-source/libssh-mirror/src/rust/string/src/lib.rs", Edition2024) }
+   0.155916282s  INFO prepare_target{force=false package_id=string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string) target="string"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/kantnero/open-source/libssh-mirror/src/rust/string/target/debug/.fingerprint/string-1a1e797db59015e5/test-lib-string`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_with_exec
+   7: cargo::ops::cargo_compile::compile
+   8: cargo::commands::check::exec
+   9: <cargo::cli::Exec>::exec
+  10: cargo::main
+  11: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  12: std::rt::lang_start::<()>::{closure#0}
+  13: <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/core/src/ops/function.rs:287:21
+  14: std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:576:43
+  15: std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:544:19
+  16: std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panic.rs:359:14
+  17: std::rt::lang_start_internal::{closure#0}
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/rt.rs:175:24
+  18: std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:576:43
+  19: std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panicking.rs:544:19
+  20: std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/panic.rs:359:14
+  21: std::rt::lang_start_internal
+             at /rustc/1afd73112f4ad9cad106573a830d2f9c4ffb89e9/library/std/src/rt.rs:171:5
+  22: main
+  23: __libc_start_call_main
+  24: __libc_start_main@@GLIBC_2.34
+  25: <unknown>
+    Checking string v0.1.0 (/home/kantnero/open-source/libssh-mirror/src/rust/string)
+error: could not compile `string` (lib) due to 19 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `string` (lib test) due to 19 previous errors
