@@ -1,5 +1,0 @@
-/home/kantnero/rust/rust/string/target/debug/deps/string-af58e18582c937e9.d: src/lib.rs
-
-/home/kantnero/rust/rust/string/target/debug/deps/libstring-af58e18582c937e9.rmeta: src/lib.rs
-
-src/lib.rs:
