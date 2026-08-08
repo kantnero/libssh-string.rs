@@ -3,27 +3,54 @@
 */
 
 
-use std::ffi::{c_char, c_void};
+use std::ffi::{c_char, c_void, CStr};
 use std::ptr::{copy_nonoverlapping, null_mut};
+use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
 
 #[repr(C)]
 #[derive(Debug)]
-struct ssh_string_struct {
+struct SshStringStruct {
     data: *mut u8,
     size: usize,
 }
 
-#[no_mangle]
-pub extern "C"
-fn ssh_string_new(size: usize) -> *mut ssh_string_struct
+type ssh_string_struct = SshStringStruct;
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ssh_string_new(size: usize) -> *mut ssh_string_struct
 {
+    let layout = Layout::array::<u8>(size).unwrap();
+    let data = alloc(layout);
+    if data.is_null() {
+        handle_alloc_error(layout);
+    }
+
+    let s: Box<SshStringStruct> = Box::new(
+        SshStringStruct {
+            data,
+            size
+        }
+    );
+
+    let ptr = Box::into_raw(s);
+    ptr
 }
 
-#[no_mangle]
-pub extern "C"
-fn ssh_string_fill(s: *mut ssh_string_struct,
-                   data: *const c_void,
-                   len: usize) -> isize
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn SAFE_FREE(ptr: *mut ssh_string_struct) {
+    if ptr.is_null() {
+        return
+    }
+
+    let s = Box::from_raw(ptr);
+    let layout = Layout::array::<u8>(s.size).unwrap();
+    dealloc(s.data, layout);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ssh_string_fill(s: *mut ssh_string_struct,
+                                  data: *const c_void,
+                                  len: usize) -> isize
 {
     if data.is_null() || s.is_null() ||
        len == 0 || len > ssh_string_len(s) {
@@ -37,31 +64,34 @@ fn ssh_string_fill(s: *mut ssh_string_struct,
 
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_from_char(what: *const c_char) -> *mut ssh_string_struct {
     if what.is_null() {
         return null_mut();
     }
-    let len: usize = what.len();
-    let ptr: *mut ssh_string_struct = ssh_string_new(len);
+    let len: usize = unsafe { CStr::from_ptr(what) }
+        .to_bytes()
+        .len();
+    let ptr: *mut ssh_string_struct = unsafe { ssh_string_new(len) };
 
     if ptr.is_null() {
         return null_mut();
     }
 
     unsafe {
+        let what = what as *const u8;
         copy_nonoverlapping(what, (*ptr).data, len);
     }
     ptr
 }
 
-#[no_mangle]
-pub extern "C" fn ssh_string_data(data: *const c_void, len: usize) -> *mut ssh_string_struct {
+#[unsafe(no_mangle)]
+pub extern "C" fn ssh_string_from_data(data: *const c_void, len: usize) -> *mut ssh_string_struct {
     if data.is_null() && len > 0 {
         return null_mut();
     }
 
-    let ptr: *mut ssh_string_struct = ssh_string_new(len);
+    let ptr: *mut ssh_string_struct = unsafe { ssh_string_new(len) };
 
     if ptr.is_null() {
         return null_mut();
@@ -70,7 +100,9 @@ pub extern "C" fn ssh_string_data(data: *const c_void, len: usize) -> *mut ssh_s
     if len > 0 {
         let rc: isize = ssh_string_fill(ptr, data, len);
         if rc != 0 {
-            ssh_string_free(ptr);
+            unsafe {
+                ssh_string_free(ptr);
+            }
             return null_mut();
         }
     }
@@ -79,8 +111,8 @@ pub extern "C" fn ssh_string_data(data: *const c_void, len: usize) -> *mut ssh_s
 }
 
 
-/*Rust equivalent for converting network bytes to host bytes */
-#[no_mangle]
+/* Find rust equivalent of htnol() for converting network bytes to host bytes */
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_len(s: *mut ssh_string_struct) -> usize {
     if s.is_null() {
         return 0;
@@ -93,33 +125,32 @@ pub extern "C" fn ssh_string_len(s: *mut ssh_string_struct) -> usize {
     return 0;
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_get_char(s: *mut ssh_string_struct) -> *const u8 {
     if s.is_null() {
         return null_mut();
     }
 
-    let c = (*s).data[0..1]; // slice the string to get first byte
-    return *c;
+    let c = unsafe { (*s).data }; // slice the string to get first byte
+    return c;
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_to_char(s: *mut ssh_string_struct) -> *mut u8 {
     if s.is_null() {
         return null_mut();
     }
 
-    let new = (*s).data[0..1];
-
+    let new = unsafe { (*s).data };
     return new;
 }
-
-#[no_mangle]
+/*
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_free_char(s: *mut u8) {
-    SAFE_FREE!(s); // use a macro;
+    SAFE_FREE(s); // use a macro;
 }
-
-#[no_mangle]
+*/
+#[unsafe(no_mangle)]
 pub extern "C" fn ssh_string_copy(s: *mut ssh_string_struct) -> *mut ssh_string_struct {
 
     if s.is_null() {
@@ -127,7 +158,7 @@ pub extern "C" fn ssh_string_copy(s: *mut ssh_string_struct) -> *mut ssh_string_
     }
 
     let size: usize = unsafe {(*s).size};
-    let new: *mut ssh_string_struct = ssh_string_new(size);
+    let new: *mut ssh_string_struct = unsafe { ssh_string_new(size) };
 
     if new.is_null() {
         return null_mut();
@@ -138,32 +169,45 @@ pub extern "C" fn ssh_string_copy(s: *mut ssh_string_struct) -> *mut ssh_string_
     new
 }
 
-pub extern "C" fn ssh_string_cmp(s1: ssh_string_struct, s2: ssh_string_struct) -> isize {
+#[unsafe(no_mangle)]
+pub extern "C" fn ssh_string_cmp(s1: *const ssh_string_struct,
+                                 s2: *const ssh_string_struct) -> isize 
+{
     if s1.is_null() || s2.is_null() {
         return 1;
     }
+
     assert!(s1 == s2);
 
     return 0;
 }
-
-pub extern "C" fn ssh_string_burn(s: ssh_string_struct) -> *mut u8 {
-    if s.is_null() || s.size == 0 {
-        return null_mut();
+/* 
+#[unsafe(no_mangle)]
+pub extern "C" fn ssh_string_burn(s: *mut ssh_string_struct) {
+    if s.is_null() || (*s).size == 0 {
+        return;
     }
 
-    ssh_burn(s.data, ssh_string_len(s));
+    ssh_burn((*s).data, ssh_string_len(s));
 }
-
-pub extern "C" fn ssh_string_data() -> *mut u8 {
+*/
+#[unsafe(no_mangle)]
+pub extern "C" fn ssh_string_data(s: *mut ssh_string_struct) -> *mut u8 {
     if s.is_null() {
         return null_mut();
     }
 
-    return s.data;
+    unsafe {
+        (*s).data
+    }
 }
 
-pub extern "C" fn ssh_string_free(s: ssh_string_struct) {
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ssh_string_free(s: *mut ssh_string_struct) {
+    if s.is_null() {
+        return;
+    }
+
     SAFE_FREE(s);
 }
 
@@ -173,4 +217,13 @@ fn main() {
 
 #[cfg(test)]
 mod test {
+    #[test]
+    fn ssh_string_new() {
+        assert_eq!(1, 2);
+    }
+
+    fn ssh_string_fill() {
+
+    }
+
 }
