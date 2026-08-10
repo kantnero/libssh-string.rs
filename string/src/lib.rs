@@ -5,7 +5,7 @@
 
 use std::ffi::{c_char, c_void, CStr};
 use std::ptr::{copy_nonoverlapping, null_mut};
-use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
+use std::alloc::{alloc_zeroed, dealloc, handle_alloc_error, Layout};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -19,8 +19,14 @@ type ssh_string_struct = SshStringStruct;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ssh_string_new(size: usize) -> *mut ssh_string_struct
 {
+    if size == 0 {
+        /* 0 crashed layout so we do something different when size is 0*/
+        let s: ssh_string_struct = ssh_string_zero(size);
+        return s;
+    }
+
     let layout = Layout::array::<u8>(size).unwrap();
-    let data = alloc(layout);
+    let data = alloc_zeroed(layout);
     if data.is_null() {
         handle_alloc_error(layout);
     }
@@ -80,6 +86,7 @@ pub extern "C" fn ssh_string_from_char(what: *const c_char) -> *mut ssh_string_s
 
     unsafe {
         let what = what as *const u8;
+        // Instead of this call ssh_string_fill filling the s->data with what
         copy_nonoverlapping(what, (*ptr).data, len);
     }
     ptr
@@ -164,7 +171,7 @@ pub extern "C" fn ssh_string_copy(s: *mut ssh_string_struct) -> *mut ssh_string_
         return null_mut();
     }
     unsafe {
-        copy_nonoverlapping((*new).data, (*s).data, size);
+        copy_nonoverlapping((*s).data, (*new).data, size);
     }
     new
 }
@@ -177,6 +184,7 @@ pub extern "C" fn ssh_string_cmp(s1: *const ssh_string_struct,
         return 1;
     }
 
+    /*TODO: can not use assert to compare string it panics. */
     assert!(s1 == s2);
 
     return 0;
