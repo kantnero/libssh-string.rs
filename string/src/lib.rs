@@ -2,7 +2,7 @@
 * Porting of the libssh string library from C to Rust.
 */
 
-
+#![allow(unsed, dead_code)]
 use std::ffi::{c_char, c_void, CStr};
 use std::ptr::{copy_nonoverlapping, null_mut};
 use std::alloc::{alloc_zeroed, dealloc, handle_alloc_error, Layout};
@@ -21,8 +21,8 @@ pub unsafe extern "C" fn ssh_string_new(size: usize) -> *mut ssh_string_struct
 {
     if size == 0 {
         /* 0 crashed layout so we do something different when size is 0*/
-        let s: ssh_string_struct = ssh_string_zero(size);
-        return s;
+       // let s: ssh_string_struct = ssh_string_zero(size);
+//        return s;
     }
 
     let layout = Layout::array::<u8>(size).unwrap();
@@ -225,13 +225,16 @@ fn main() {
 
 #[cfg(test)]
 mod test {
+    use super::*;
     #[test]
-    fn ssh_string_new() {
-        assert_eq!(1, 2);
+    fn new() {
     }
 
-    fn ssh_string_fill() {
-
+    fn fill() {
+        let s: *mut ssh_string_struct = ssh_string_new(11);
+        let data: CStr = "hello";
+        let rc = ssh_string_fill(s, data, Cstr::from_ptr(data).to_bytes().len());
+        assert_eq!((*s).data, data as *mut u8);
     }
 
 }
